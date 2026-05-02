@@ -1,0 +1,26 @@
+<server description="Komowai Engine">
+    <featureManager>
+        <feature>jakartaee-11.0</feature>
+        <feature>microProfile-7.0</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint"
+                  httpPort="9080"/>
+    
+    <!-- Basic Security Registry to satisfy EE 11 requirements -->
+    <quickStartSecurity userName="admin" userPassword="adminPassword"/>
+
+    <webApplication location="duke-knows-me.war" contextRoot="/dukesays">
+        <classloader commonLibraryRef="h2Library"/>
+    </webApplication>
+
+    <library id="h2Library">
+        <fileset dir="${server.config.dir}/lib" includes="h2*.jar"/>
+    </library>
+
+    <dataSource id="DefaultDataSource" jndiName="jdbc/DefaultDataSource">
+        <jdbcDriver javax.sql.DataSource="org.h2.jdbcx.JdbcDataSource" libraryRef="h2Library"/>
+        <!-- Added MODE=LEGACY for H2 2.x compatibility with EclipseLink -->
+        <properties URL="jdbc:h2:mem:komowai;DB_CLOSE_DELAY=-1;MODE=LEGACY" user="sa" password=""/>
+    </dataSource>
+</server>
