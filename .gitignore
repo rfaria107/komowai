@@ -23,6 +23,10 @@ frontend/.env*
 .claude/
 .gemini/
 .github/
+AGENTS.md
+GEMINI.md
+jakarta.md
+Jakarta*
 
 # IDEs / Editors
 .vscode/
