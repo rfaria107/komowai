@@ -29,6 +29,7 @@
 The backend provides the REST API and the Agentic Engine.
 
 ```bash
+cd backend
 mvn clean liberty:run
 ```
 *Note: The first run will download the Open Liberty runtime and H2 database driver.*

@@ -1,15 +1,16 @@
-# Java / Maven
+# Java / Maven (Backend)
 target/
-*.class
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
-.mvn/
-.metadata/
-bin/
+backend/target/
+backend/*.class
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/*.zip
+backend/*.tar.gz
+backend/*.rar
+backend/.mvn/
+backend/.metadata/
+backend/bin/
 *.pdf
 
 # Node / Frontend
@@ -23,10 +24,11 @@ frontend/.env*
 .claude/
 .gemini/
 .github/
-AGENTS.md
+openspec/
 GEMINI.md
+AGENTS.md
 jakarta.md
-Jakarta*
+project_data.md
 
 # IDEs / Editors
 .vscode/
