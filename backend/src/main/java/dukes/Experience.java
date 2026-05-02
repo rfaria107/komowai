@@ -35,4 +35,9 @@ public class Experience {
 
     public UserProfile getUserProfile() { return userProfile; }
     public void setUserProfile(UserProfile userProfile) { this.userProfile = userProfile; }
+
+    @Override
+    public String toString() {
+        return "Experience{title='" + title + "', company='" + company + "', description='" + description + "'}";
+    }
 }

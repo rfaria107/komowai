@@ -6,8 +6,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
 
 @Path("tailor")
 @RequestScoped
@@ -16,7 +14,7 @@ import jakarta.json.bind.JsonbBuilder;
 public class TailorResource {
 
     @Inject
-    private KnowMeAgent agent; // Updated from TailorAgent to KnowMeAgent
+    private TailorAgent agent;
 
     @Inject
     private ScraperService scraper;
@@ -24,12 +22,14 @@ public class TailorResource {
     @Inject
     private UserProfileRepository profileRepo;
 
-    private static final Jsonb jsonb = JsonbBuilder.create();
+    @Inject
+    private KnowledgeTools tools;
 
     public record TailorRequest(String jobText, String jobUrl, Long profileId) {}
 
     @POST
-    public ScoreResponse tailor(TailorRequest request) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public TailorResponse tailor(TailorRequest request) {
         String jobDescription = request.jobText();
         
         if (request.jobUrl() != null && !request.jobUrl().isBlank()) {
@@ -39,7 +39,24 @@ public class TailorResource {
         if (jobDescription == null || jobDescription.isBlank()) {
             throw new BadRequestException("Job description or URL is required");
         }
+
+        // Fetch user profile as a string for the agent
+        UserProfile profile = profileRepo.findById(request.profileId())
+                .orElseThrow(() -> new NotFoundException("Profile not found"));
         
-        return agent.calculateFit(request.profileId(), jobDescription);
+        // We can pass the profile data to the agent
+        String profileInfo = "Name: " + profile.getName() + "\n" +
+                           "Email: " + profile.getEmail() + "\n" +
+                           "Skills: " + tools.getUserSkills(profile.getId()) + "\n" +
+                           "Experience: " + tools.getUserExperience(profile.getId()) + "\n" +
+                           "Projects: " + tools.getUserProjects(profile.getId());
+
+        try {
+            return agent.tailor(jobDescription, profileInfo);
+        } catch (Exception e) {
+            System.err.println("CRITICAL ERROR DURING TAILORING:");
+            e.printStackTrace();
+            throw new InternalServerErrorException("Agent failed to generate tailored CV: " + e.getMessage());
+        }
     }
 }

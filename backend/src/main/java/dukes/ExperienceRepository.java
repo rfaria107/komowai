@@ -10,4 +10,7 @@ import java.util.List;
 public interface ExperienceRepository extends DataRepository<Experience, Long> {
     @Find
     List<Experience> findByUserProfile(@By("userProfile") UserProfile profile);
+
+    @Find
+    List<Experience> findAll();
 }

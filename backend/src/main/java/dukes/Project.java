@@ -35,4 +35,9 @@ public class Project {
 
     public UserProfile getUserProfile() { return userProfile; }
     public void setUserProfile(UserProfile userProfile) { this.userProfile = userProfile; }
+
+    @Override
+    public String toString() {
+        return "Project{title='" + title + "', description='" + description + "', technologies='" + technologies + "'}";
+    }
 }

@@ -10,4 +10,7 @@ import java.util.List;
 public interface ProjectRepository extends DataRepository<Project, Long> {
     @Find
     List<Project> findByUserProfile(@By("userProfile") UserProfile profile);
+
+    @Find
+    List<Project> findAll();
 }

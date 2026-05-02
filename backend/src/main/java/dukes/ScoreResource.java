@@ -31,6 +31,15 @@ public class ScoreResource {
             throw new BadRequestException("Job description or URL is required");
         }
         
-        return agent.calculateFit(request.userId(), jobDescription);
+        try {
+            return agent.calculateFit(request.userId(), jobDescription);
+        } catch (Exception e) {
+            System.err.println("CRITICAL ERROR DURING SCORING [" + e.getClass().getSimpleName() + "]: " + e.getMessage());
+            if (e.getCause() != null) {
+                System.err.println("CAUSE: " + e.getCause().getMessage());
+            }
+            e.printStackTrace();
+            throw new InternalServerErrorException("Agent failed to compute fit: " + e.getMessage());
+        }
     }
 }

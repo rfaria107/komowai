@@ -1,9 +1,11 @@
 package dukes;
 
+import dev.langchain4j.cdi.spi.RegisterAIService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 
+@RegisterAIService(tools = KnowledgeTools.class)
 public interface KnowMeAgent {
 
     @SystemMessage("""
@@ -19,7 +21,11 @@ public interface KnowMeAgent {
         CONSTRAINTS:
         - ONLY use the data you retrieve from your tools for the user profile.
         - Be objective and professional.
-        - Output a valid JSON object matching the ScoreResponse record structure.
+        - Output ONLY a raw JSON object with these exact keys:
+            "matchScore": (integer between 0 and 100)
+            "rationale": (detailed string explanation)
+        - DO NOT include markdown formatting like ```json or any other text outside the JSON object.
         """)
-    ScoreResponse calculateFit(@V("userId") Long userId, String jobDescription);
+    @UserMessage("Evaluate the fit for user {{userId}} against this job description: {{jobDescription}}")
+    ScoreResponse calculateFit(@V("userId") Long userId, @V("jobDescription") String jobDescription);
 }

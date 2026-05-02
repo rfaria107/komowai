@@ -10,4 +10,7 @@ import java.util.List;
 public interface SkillRepository extends DataRepository<Skill, Long> {
     @Find
     List<Skill> findByUserProfile(@By("userProfile") UserProfile profile);
+
+    @Find
+    List<Skill> findAll();
 }

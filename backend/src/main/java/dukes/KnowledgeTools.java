@@ -4,6 +4,7 @@ import dev.langchain4j.agent.tool.Tool;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class KnowledgeTools {
@@ -20,24 +21,50 @@ public class KnowledgeTools {
     @Inject
     private ProjectRepository projectRepo;
 
+    // Simple DTOs for the Agent to avoid circular references and JPA proxies
+    public record SkillInfo(String name, String level, String context) {}
+    public record ExperienceInfo(String title, String company, String description) {}
+    public record ProjectInfo(String title, String description, String technologies) {}
+
     @Tool("Get the user's professional skills to understand their technical expertise")
-    public List<Skill> getUserSkills(Long userId) {
+    public List<SkillInfo> getUserSkills(Long userId) {
+        System.out.println("AGENT CALLING TOOL: getUserSkills for ID " + userId);
         return profileRepo.findById(userId)
-                .map(skillRepo::findByUserProfile)
+                .map(p -> {
+                    List<Skill> list = skillRepo.findByUserProfile(p);
+                    System.out.println("FOUND SKILLS: " + list.size());
+                    return list.stream()
+                            .map(s -> new SkillInfo(s.getName(), s.getLevel(), s.getContext()))
+                            .collect(Collectors.toList());
+                })
                 .orElse(List.of());
     }
 
     @Tool("Get the user's professional experience to understand their career history")
-    public List<Experience> getUserExperience(Long userId) {
+    public List<ExperienceInfo> getUserExperience(Long userId) {
+        System.out.println("AGENT CALLING TOOL: getUserExperience for ID " + userId);
         return profileRepo.findById(userId)
-                .map(experienceRepo::findByUserProfile)
+                .map(p -> {
+                    List<Experience> list = experienceRepo.findByUserProfile(p);
+                    System.out.println("FOUND EXPERIENCE: " + list.size());
+                    return list.stream()
+                            .map(e -> new ExperienceInfo(e.getTitle(), e.getCompany(), e.getDescription()))
+                            .collect(Collectors.toList());
+                })
                 .orElse(List.of());
     }
 
     @Tool("Get the user's projects to understand their practical achievements")
-    public List<Project> getUserProjects(Long userId) {
+    public List<ProjectInfo> getUserProjects(Long userId) {
+        System.out.println("AGENT CALLING TOOL: getUserProjects for ID " + userId);
         return profileRepo.findById(userId)
-                .map(projectRepo::findByUserProfile)
+                .map(p -> {
+                    List<Project> list = projectRepo.findByUserProfile(p);
+                    System.out.println("FOUND PROJECTS: " + list.size());
+                    return list.stream()
+                            .map(pr -> new ProjectInfo(pr.getTitle(), pr.getDescription(), pr.getTechnologies()))
+                            .collect(Collectors.toList());
+                })
                 .orElse(List.of());
     }
 }

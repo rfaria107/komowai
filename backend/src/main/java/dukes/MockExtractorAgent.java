@@ -3,11 +3,10 @@ package dukes;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Vetoed;
 import java.util.List;
 
-@Alternative
-// @Priority(1)
-@ApplicationScoped
+@Vetoed
 public class MockExtractorAgent implements ExtractorAgent {
 
     @Override

@@ -1,8 +1,11 @@
 package dukes;
 
+import dev.langchain4j.cdi.spi.RegisterAIService;
 import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 
+@RegisterAIService
 public interface TailorAgent {
 
     @SystemMessage("""
@@ -19,7 +22,10 @@ public interface TailorAgent {
         
         CONSTRAINTS:
         - ONLY use information provided in the User's Profile. Do NOT hallucinate experiences.
-        - Output a valid JSON object matching the TailorResponse record structure.
+        - Output ONLY a raw JSON object with these exact keys:
+            "reasoning": (detailed string explanation)
+            "latexCode": (valid LaTeX code string)
+        - DO NOT include markdown formatting.
         - Ensure the LaTeX code is clean and ready for a standard document class like 'article' or 'resume'.
         
         SAMPLE LATEX STRUCTURE (Use this as a guide):
@@ -40,5 +46,6 @@ public interface TailorAgent {
         USER PROFILE:
         {{profile}}
         """)
-    TailorResponse tailor(String jobDescription, @V("profile") String userProfile);
+    @UserMessage("Generate a tailored CV segment for this job: {{jobDescription}}")
+    TailorResponse tailor(@V("jobDescription") String jobDescription, @V("profile") String userProfile);
 }

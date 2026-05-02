@@ -34,4 +34,9 @@ public class Skill {
 
     public UserProfile getUserProfile() { return userProfile; }
     public void setUserProfile(UserProfile userProfile) { this.userProfile = userProfile; }
+
+    @Override
+    public String toString() {
+        return "Skill{name='" + name + "', level='" + level + "', context='" + context + "'}";
+    }
 }

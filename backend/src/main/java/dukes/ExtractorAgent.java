@@ -1,8 +1,10 @@
 package dukes;
 
+import dev.langchain4j.cdi.spi.RegisterAIService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 
+@RegisterAIService
 public interface ExtractorAgent {
 
     @SystemMessage("""
