@@ -6,7 +6,7 @@ import jakarta.enterprise.inject.Alternative;
 import java.util.List;
 
 @Alternative
-@Priority(1)
+// @Priority(1)
 @ApplicationScoped
 public class MockExtractorAgent implements ExtractorAgent {
 

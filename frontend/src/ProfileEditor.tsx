@@ -58,8 +58,8 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-[10px] font-mono text-text-muted uppercase tracking-tighter">Full Name</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               className="dossier-input w-full"
               value={profile.name}
               onChange={(e) => setProfile({ ...profile, name: e.target.value })}
@@ -67,8 +67,8 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-mono text-text-muted uppercase tracking-tighter">Secure Email Address</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               className="dossier-input w-full"
               value={profile.email}
               onChange={(e) => setProfile({ ...profile, email: e.target.value })}
@@ -80,34 +80,35 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
       {/* Skills Matrix */}
       <section className="dossier-card">
         <h3 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-6">Competency Matrix // 02</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-          <input 
-            type="text" 
-            placeholder="Skill" 
-            className="dossier-input"
-            value={newSkill.name}
-            onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
-          />
-          <select 
-            className="dossier-input"
-            value={newSkill.level}
-            onChange={(e) => setNewSkill({ ...newSkill, level: e.target.value })}
-          >
-            <option>Beginner</option>
-            <option>Intermediate</option>
-            <option>Advanced</option>
-            <option>Expert</option>
-          </select>
-          <div className="flex gap-2">
-            <input 
-              type="text" 
-              placeholder="Context" 
-              className="dossier-input flex-1"
-              value={newSkill.context}
-              onChange={(e) => setNewSkill({ ...newSkill, context: e.target.value })}
+        <div className="space-y-4 mb-8 bg-obsidian-950 p-4 border border-obsidian-700">
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Skill"
+              className="dossier-input"
+              value={newSkill.name}
+              onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
             />
-            <button onClick={addSkill} className="dossier-button-primary !py-0 !px-4">+</button>
+            <select
+              className="dossier-input"
+              value={newSkill.level}
+              onChange={(e) => setNewSkill({ ...newSkill, level: e.target.value })}
+            >
+              <option>Beginner</option>
+              <option>Intermediate</option>
+              <option>Advanced</option>
+              <option>Expert</option>
+            </select>
+
           </div>
+          <textarea
+            placeholder="Context"
+            className="dossier-input w-full h-24"
+            value={newSkill.context}
+            onChange={(e) => setNewSkill({ ...newSkill, context: e.target.value })}
+          />
+          <button onClick={addSkill} className="dossier-button-secondary w-full text-[10px]">Log Skill</button>
+
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {profile.skills.map((s, i) => (
@@ -128,23 +129,23 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
         <h3 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-6">Professional Trajectory // 03</h3>
         <div className="space-y-4 mb-8 bg-obsidian-950 p-4 border border-obsidian-700">
           <div className="grid grid-cols-2 gap-4">
-            <input 
-              type="text" 
-              placeholder="Designation" 
+            <input
+              type="text"
+              placeholder="Designation"
               className="dossier-input"
               value={newExperience.title}
               onChange={(e) => setNewExperience({ ...newExperience, title: e.target.value })}
             />
-            <input 
-              type="text" 
-              placeholder="Organization" 
+            <input
+              type="text"
+              placeholder="Organization"
               className="dossier-input"
               value={newExperience.company}
               onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
             />
           </div>
-          <textarea 
-            placeholder="Key Responsibilities & Impact" 
+          <textarea
+            placeholder="Key Responsibilities & Impact"
             className="dossier-input w-full h-24"
             value={newExperience.description}
             onChange={(e) => setNewExperience({ ...newExperience, description: e.target.value })}
@@ -172,22 +173,22 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
       <section className="dossier-card">
         <h3 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-6">Strategic Initiatives // 04</h3>
         <div className="space-y-4 mb-8 bg-obsidian-950 p-4 border border-obsidian-700">
-          <input 
-            type="text" 
-            placeholder="Project Title" 
+          <input
+            type="text"
+            placeholder="Project Title"
             className="dossier-input w-full"
             value={newProject.title}
             onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
           />
-          <textarea 
-            placeholder="Project Narrative & Technical Scope" 
+          <textarea
+            placeholder="Project Narrative & Technical Scope"
             className="dossier-input w-full h-24"
             value={newProject.description}
             onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
           />
-          <input 
-            type="text" 
-            placeholder="Tech Stack (Comma Separated)" 
+          <input
+            type="text"
+            placeholder="Tech Stack (Comma Separated)"
             className="dossier-input w-full font-mono text-xs"
             value={newProject.technologies}
             onChange={(e) => setNewProject({ ...newProject, technologies: e.target.value })}
@@ -215,8 +216,8 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
       </section>
 
       <div className="flex justify-end pt-12 border-t border-obsidian-600">
-        <button 
-          onClick={handleSave} 
+        <button
+          onClick={handleSave}
           className="dossier-button-primary"
         >
           Synchronize Profile

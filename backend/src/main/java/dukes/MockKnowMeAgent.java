@@ -5,7 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
 
 @Alternative
-@Priority(1)
+// @Priority(1)
 @ApplicationScoped
 public class MockKnowMeAgent implements KnowMeAgent {
 
