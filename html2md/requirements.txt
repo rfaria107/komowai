@@ -1,0 +1,5 @@
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+httpx==0.27.2
+markitdown[all]==0.0.1a3
+pydantic==2.10.3
