@@ -3,6 +3,7 @@ package dukes;
 import dev.langchain4j.cdi.spi.RegisterAIService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
 
 @RegisterAIService
 public interface ExtractorAgent {
@@ -20,5 +21,5 @@ public interface ExtractorAgent {
         - The output MUST be a valid JSON object matching the ExtractedProfile record structure.
         """)
     @UserMessage("Extract professional profile from this CV text: {{text}}")
-    ExtractedProfile extract(String text);
+    ExtractedProfile extract(@V("text") String text);
 }

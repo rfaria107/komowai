@@ -7,6 +7,8 @@ import type { UserProfile } from './types';
 
 function App() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [transientProfile, setTransientProfile] = useState<UserProfile | null>(null);
+  const [isReviewing, setIsReviewing] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [scoring, setScoring] = useState(false);
   const [scoreResult, setScoreResult] = useState<{ matchScore: number; rationale: string } | null>(null);
@@ -32,26 +34,36 @@ function App() {
       });
       const savedProfile = await res.json();
       setProfile(savedProfile);
+      setTransientProfile(null);
+      setIsReviewing(false);
     } catch (err) {
       console.error('Error saving profile:', err);
     }
   };
 
-  const handleCVExtract = async (text: string) => {
+  const handleCVExtract = async (file: File) => {
     setExtracting(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      const res = await fetch('/dukesays/cv/extract', {
+      const res = await fetch('/dukesays/cv/extract/file', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
+        body: formData
       });
       const extractedProfile = await res.json();
-      setProfile(extractedProfile);
+      setTransientProfile(extractedProfile);
+      setIsReviewing(true);
     } catch (err) {
       console.error('Error extracting CV:', err);
     } finally {
       setExtracting(false);
     }
+  };
+
+  const handleDiscardReview = () => {
+    setTransientProfile(null);
+    setIsReviewing(false);
   };
 
   const handleJobScore = async (jobText: string, jobUrl: string) => {
@@ -123,7 +135,7 @@ function App() {
         <div className="grid grid-cols-12 gap-8 lg:gap-12">
           {/* Left Column: Management */}
           <div className="col-span-12 lg:col-span-7 space-y-12">
-            {!profile && (
+            {!profile && !isReviewing && (
               <section>
                 <div className="flex items-center gap-4 mb-8">
                   <h2 className="text-xl lg:text-2xl font-display italic">Initialize Identity</h2>
@@ -133,13 +145,33 @@ function App() {
               </section>
             )}
 
-            <section>
-              <div className="flex items-center gap-4 mb-8">
-                <h2 className="text-xl lg:text-2xl font-display italic">Professional Record</h2>
-                <div className="h-px bg-obsidian-600 flex-1" />
-              </div>
-              <ProfileEditor onSave={handleSaveProfile} initialProfile={profile || undefined} />
-            </section>
+            {(profile || isReviewing) && (
+              <section>
+                <div className="flex items-center gap-4 mb-8">
+                  <h2 className="text-xl lg:text-2xl font-display italic">
+                    {isReviewing ? 'Dossier Review Mode' : 'Professional Record'}
+                  </h2>
+                  {isReviewing && (
+                    <span className="text-[10px] font-mono bg-acid-lime text-obsidian-950 px-2 py-0.5 animate-pulse uppercase font-bold">
+                      Pending Sync
+                    </span>
+                  )}
+                  <div className="h-px bg-obsidian-600 flex-1" />
+                  {isReviewing && (
+                    <button 
+                      onClick={handleDiscardReview}
+                      className="text-[10px] font-mono text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors"
+                    >
+                      [ Discard Brief ]
+                    </button>
+                  )}
+                </div>
+                <ProfileEditor 
+                  onSave={handleSaveProfile} 
+                  initialProfile={isReviewing ? (transientProfile || undefined) : (profile || undefined)} 
+                />
+              </section>
+            )}
           </div>
 
           {/* Right Column: Analysis */}

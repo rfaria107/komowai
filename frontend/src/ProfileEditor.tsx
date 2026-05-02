@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { UserProfile, Skill, Experience, Project } from './types';
 
 interface Props {
@@ -14,6 +14,13 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
     experiences: [],
     projects: []
   });
+
+  // Reset state when initialProfile changes (crucial for Review Mode)
+  useEffect(() => {
+    if (initialProfile) {
+      setProfile(initialProfile);
+    }
+  }, [initialProfile]);
 
   const [newSkill, setNewSkill] = useState<Skill>({ name: '', level: 'Intermediate', context: '' });
   const [newExperience, setNewExperience] = useState<Experience>({ title: '', company: '', description: '' });
@@ -50,11 +57,26 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
     setProfile(updated);
   };
 
+  const updateItem = (type: 'skills' | 'experiences' | 'projects', index: number, field: string, value: string) => {
+    const updated = { ...profile };
+    const items = [...(updated[type] as any[])];
+    items[index] = { ...items[index], [field]: value };
+    (updated[type] as any[]) = items;
+    setProfile(updated);
+  };
+
   return (
     <div className="space-y-8">
       {/* Identity Segment */}
-      <section className="dossier-card border-l-4 border-l-acid-lime">
-        <h3 className="text-xs font-mono text-acid-lime uppercase tracking-widest mb-6">Subject Identity // 01</h3>
+      <section className={`dossier-card border-l-4 ${profile.id ? 'border-l-obsidian-600' : 'border-l-acid-lime'}`}>
+        <div className="flex justify-between items-start mb-6">
+          <h3 className="text-xs font-mono text-acid-lime uppercase tracking-widest">Subject Identity // 01</h3>
+          {!profile.id && (
+            <span className="text-[9px] font-mono text-acid-lime border border-acid-lime px-2 py-0.5 uppercase tracking-tighter animate-pulse">
+              Newly Extracted
+            </span>
+          )}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-[10px] font-mono text-text-muted uppercase tracking-tighter">Full Name</label>
@@ -112,13 +134,30 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {profile.skills.map((s, i) => (
-            <div key={i} className="bg-obsidian-950 border border-obsidian-700 p-3 flex justify-between items-start group">
-              <div>
-                <div className="text-[10px] font-mono text-acid-lime mb-1 uppercase tracking-tighter">{s.level}</div>
-                <div className="text-sm font-bold uppercase tracking-wider">{s.name}</div>
-                <div className="text-[10px] text-text-muted italic">{s.context}</div>
+            <div key={i} className="bg-obsidian-950 border border-obsidian-700 p-3 flex flex-col gap-2 group relative">
+              <div className="flex justify-between items-start">
+                <select
+                  className="text-[10px] font-mono text-acid-lime bg-transparent outline-none uppercase tracking-tighter cursor-pointer"
+                  value={s.level}
+                  onChange={(e) => updateItem('skills', i, 'level', e.target.value)}
+                >
+                  <option className="bg-obsidian-900">Beginner</option>
+                  <option className="bg-obsidian-900">Intermediate</option>
+                  <option className="bg-obsidian-900">Advanced</option>
+                  <option className="bg-obsidian-900">Expert</option>
+                </select>
+                <button onClick={() => removeItem('skills', i)} className="text-red-900 opacity-0 group-hover:opacity-100 transition-opacity text-xs">✕</button>
               </div>
-              <button onClick={() => removeItem('skills', i)} className="text-red-900 opacity-0 group-hover:opacity-100 transition-opacity text-xs">✕</button>
+              <input
+                className="text-sm font-bold uppercase tracking-wider bg-transparent border-b border-transparent focus:border-acid-lime/30 outline-none w-full"
+                value={s.name}
+                onChange={(e) => updateItem('skills', i, 'name', e.target.value)}
+              />
+              <input
+                className="text-[10px] text-text-muted italic bg-transparent border-b border-transparent focus:border-acid-lime/30 outline-none w-full"
+                value={s.context}
+                onChange={(e) => updateItem('skills', i, 'context', e.target.value)}
+              />
             </div>
           ))}
         </div>
@@ -154,16 +193,28 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
         </div>
         <div className="space-y-4">
           {profile.experiences.map((exp, i) => (
-            <div key={i} className="border-l border-obsidian-700 pl-6 py-2 relative group">
-              <div className="absolute left-0 top-3 w-2 h-2 bg-obsidian-700 -translate-x-1/2 rounded-full group-hover:bg-acid-lime transition-colors" />
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="text-lg font-display italic text-text">{exp.title}</h4>
-                  <div className="text-xs font-mono text-acid-lime uppercase tracking-widest mb-2">{exp.company}</div>
+            <div key={i} className="border-l border-obsidian-700 pl-6 py-4 relative group hover:bg-obsidian-950/50 transition-colors">
+              <div className="absolute left-0 top-6 w-2 h-2 bg-obsidian-700 -translate-x-1/2 rounded-full group-hover:bg-acid-lime transition-colors" />
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex-1 space-y-1">
+                  <input
+                    className="text-lg font-display italic text-text bg-transparent border-b border-transparent focus:border-acid-lime/30 outline-none w-full"
+                    value={exp.title}
+                    onChange={(e) => updateItem('experiences', i, 'title', e.target.value)}
+                  />
+                  <input
+                    className="text-xs font-mono text-acid-lime uppercase tracking-widest bg-transparent border-b border-transparent focus:border-acid-lime/30 outline-none w-full"
+                    value={exp.company}
+                    onChange={(e) => updateItem('experiences', i, 'company', e.target.value)}
+                  />
                 </div>
-                <button onClick={() => removeItem('experiences', i)} className="text-red-900 opacity-0 group-hover:opacity-100 transition-opacity text-xs">✕</button>
+                <button onClick={() => removeItem('experiences', i)} className="text-red-900 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-4">✕</button>
               </div>
-              <p className="text-sm text-text-muted font-light leading-relaxed">{exp.description}</p>
+              <textarea
+                className="text-sm text-text-muted font-light leading-relaxed bg-transparent border border-transparent focus:border-acid-lime/30 outline-none w-full h-auto min-h-[60px] resize-none py-1"
+                value={exp.description}
+                onChange={(e) => updateItem('experiences', i, 'description', e.target.value)}
+              />
             </div>
           ))}
         </div>
@@ -197,18 +248,27 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {profile.projects.map((proj, i) => (
-            <div key={i} className="dossier-card !bg-obsidian-950 !p-4 group">
-              <div className="flex justify-between items-start mb-2">
-                <h4 className="text-lg font-display italic">{proj.title}</h4>
-                <button onClick={() => removeItem('projects', i)} className="text-red-900 opacity-0 group-hover:opacity-100 transition-opacity text-xs">✕</button>
+            <div key={i} className="dossier-card !bg-obsidian-950 !p-4 group relative">
+              <div className="flex justify-between items-start mb-4">
+                <input
+                  className="text-lg font-display italic bg-transparent border-b border-transparent focus:border-acid-lime/30 outline-none w-full"
+                  value={proj.title}
+                  onChange={(e) => updateItem('projects', i, 'title', e.target.value)}
+                />
+                <button onClick={() => removeItem('projects', i)} className="text-red-900 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-2">✕</button>
               </div>
-              <p className="text-xs text-text-muted mb-4 line-clamp-3">{proj.description}</p>
-              <div className="flex gap-2 flex-wrap">
-                {proj.technologies.split(',').map((tech, idx) => (
-                  <span key={idx} className="text-[9px] font-mono text-acid-lime border border-acid-lime/30 px-2 py-0.5 uppercase">
-                    {tech.trim()}
-                  </span>
-                ))}
+              <textarea
+                className="text-xs text-text-muted mb-4 bg-transparent border border-transparent focus:border-acid-lime/30 outline-none w-full h-24 resize-none"
+                value={proj.description}
+                onChange={(e) => updateItem('projects', i, 'description', e.target.value)}
+              />
+              <div className="space-y-2">
+                 <label className="text-[8px] font-mono text-obsidian-600 uppercase">Technologies</label>
+                 <input
+                    className="text-[9px] font-mono text-acid-lime border border-acid-lime/30 px-2 py-1 uppercase bg-transparent outline-none w-full"
+                    value={proj.technologies}
+                    onChange={(e) => updateItem('projects', i, 'technologies', e.target.value)}
+                  />
               </div>
             </div>
           ))}
@@ -216,14 +276,13 @@ const ProfileEditor: React.FC<Props> = ({ onSave, initialProfile }) => {
       </section>
 
       <div className="flex justify-end pt-12 border-t border-obsidian-600">
-        <button
-          onClick={handleSave}
+        <button 
+          onClick={handleSave} 
           className="dossier-button-primary"
         >
-          Synchronize Profile
+          {profile.id ? 'Synchronize Updates' : 'Commit to Record'}
         </button>
-      </div>
-    </div>
+      </div>    </div>
   );
 };
 

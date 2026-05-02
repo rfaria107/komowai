@@ -23,6 +23,9 @@ public class ProfileResource {
 
     @POST
     public Response saveProfile(UserProfile profile) {
+        // Sanitize strings to prevent CWWKD0203E (disallowed Unicode chars)
+        DossierSanitizer.sanitizeProfile(profile);
+
         if (profile.getExperiences() != null) {
             profile.getExperiences().forEach(e -> e.setUserProfile(profile));
         }

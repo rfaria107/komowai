@@ -21,6 +21,11 @@ public class CVService {
 
     @Transactional
     public UserProfile processCV(String cvText) {
+        UserProfile profile = extractStructuredData(cvText);
+        return profileRepo.save(profile);
+    }
+
+    public UserProfile extractStructuredData(String cvText) {
         ExtractedProfile extracted = extractor.extract(cvText);
         
         UserProfile profile = new UserProfile();
@@ -60,7 +65,7 @@ public class CVService {
             });
         }
         
-        return profileRepo.save(profile);
+        return profile;
     }
 
     public CompletableFuture<UserProfile> processCVAsync(String cvText) {
