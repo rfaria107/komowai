@@ -15,39 +15,37 @@ const JobIngestion: React.FC<Props> = ({ onTailor, loading }) => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-4">
       <div className="flex items-center gap-3">
-        <span className="text-cyber-cyan animate-pulse">●</span>
-        <h3 className="text-xs font-mono text-text-muted uppercase tracking-widest">Target Acquisition Port</h3>
+        <div className="w-2 h-2 rounded-full bg-accent" />
+        <h3 className="text-sm font-bold text-primary">Mission Analysis</h3>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="space-y-2">
-          <label className="text-[10px] font-mono text-text-muted uppercase tracking-widest block">Job Description Analysis</label>
-          <textarea
-            placeholder="PASTE TARGET JOB DESCRIPTION..."
-            className="dossier-input w-full h-56 font-mono text-xs placeholder:text-obsidian-700"
-            value={jobText}
-            onChange={(e) => setJobText(e.target.value)}
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-          <div className="md:col-span-5 space-y-2">
-            <label className="text-[10px] font-mono text-text-muted uppercase tracking-widest block">Remote Source (URL)</label>
+          <label className="text-xs font-medium text-text-muted px-1">Job Description or URL</label>
+          <div className="space-y-4">
             <input
               type="url"
-              placeholder="HTTPS://..."
-              className="dossier-input w-full text-xs font-mono"
+              placeholder="Paste job link (https://...)"
+              className="cv-input w-full"
               value={jobUrl}
               onChange={(e) => setJobUrl(e.target.value)}
             />
-          </div>
-          <div className="md:col-span-2 text-center">
-            <span className="text-[10px] font-mono text-obsidian-600 uppercase tracking-widest">/OR/</span>
-          </div>
-          <div className="md:col-span-5 pt-2">
-             <div className="h-px bg-obsidian-700 w-full" />
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase tracking-widest">
+                <span className="bg-card px-3 text-text-muted font-mono">or paste text</span>
+              </div>
+            </div>
+            <textarea
+              placeholder="Paste the full job description here..."
+              className="cv-input w-full h-48 resize-none"
+              value={jobText}
+              onChange={(e) => setJobText(e.target.value)}
+            />
           </div>
         </div>
 
@@ -55,9 +53,17 @@ const JobIngestion: React.FC<Props> = ({ onTailor, loading }) => {
           <button
             type="submit"
             disabled={loading || (!jobText && !jobUrl)}
-            className="dossier-button-primary !bg-cyber-cyan !text-obsidian-950 px-12 py-4 text-sm"
+            className="cv-button-primary w-full max-w-md shadow-xl"
           >
-            {loading ? 'Agent Computing Fit...' : 'Initialize Analysis Cycle'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Calculating Fit...
+              </span>
+            ) : 'Analyze Alignment'}
           </button>
         </div>
       </form>
@@ -65,4 +71,4 @@ const JobIngestion: React.FC<Props> = ({ onTailor, loading }) => {
   );
 };
 
-export default JobIngestion;
+export default React.memo(JobIngestion);

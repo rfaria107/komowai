@@ -36,6 +36,23 @@ class ConvertResponse(BaseModel):
     elapsed_ms: int
 
 
+class DiscoveryRequest(BaseModel):
+    keywords: str = "Software Engineer"
+    limit: int = 10
+
+
+class JobBrief(BaseModel):
+    id: str
+    title: str
+    company: str
+    url: str
+
+
+class DiscoveryResponse(BaseModel):
+    jobs: list[JobBrief]
+    count: int
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
@@ -53,26 +70,37 @@ async def convert(req: ConvertRequest):
         "Accept-Language": "en-US,en;q=0.9",
     }
 
-    # If it's LinkedIn, we might want to try Jina Reader directly from Python 
-    # to avoid the Java SSL issue and leverage Jina's proxying.
-    target_url = url_str
+    # --- LinkedIn Bypass Logic ---
     if "linkedin.com" in url_str.lower():
-        target_url = f"https://r.jina.ai/{url_str}"
-        print(f"SCRAPER: LinkedIn detected, proxying via Jina: {target_url}")
+        import re
+        # Try to extract the Job ID from various LinkedIn URL formats
+        job_id_match = re.search(r"view/(\d+)", url_str) or re.search(r"currentJobId=(\d+)", url_str)
+
+        if job_id_match:
+            job_id = job_id_match.group(1)
+            # Use the "Guest" API endpoint which usually bypasses the login wall
+            target_url = f"https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
+            print(f"SCRAPER: LinkedIn detected. Using Guest API bypass for Job ID: {job_id}")
+        else:
+            # Fallback to Jina if we can't find an ID
+            target_url = f"https://r.jina.ai/{url_str}"
+            print(f"SCRAPER: LinkedIn detected but no ID found, proxying via Jina: {target_url}")
+    else:
+        target_url = url_str
 
     try:
         async with httpx.AsyncClient(
             follow_redirects=True,
             timeout=req.timeout,
             headers=headers,
-            verify=False # Disable SSL verification to bypass potential proxy/cert issues in the environment
+            verify=False
         ) as client:
             response = await client.get(target_url)
             response.raise_for_status()
-            
-            # Check if we still hit a login wall (even via Jina)
-            if "login" in response.url.path.lower() or "authwall" in response.text.lower():
-                 print("SCRAPER WARNING: Hit a login wall or auth redirect.")
+
+            # Simple check for the "authwall" or login redirect
+            if "login" in str(response.url).lower() or "authwall" in response.text.lower():
+                 print("SCRAPER WARNING: Still hitting a login wall. Try copying the text manually.")
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail=f"Upstream timed out after {req.timeout}s")
     except httpx.HTTPStatusError as e:
@@ -140,3 +168,51 @@ async def convert_file(file: UploadFile = File(...)):
         char_count=len(markdown),
         elapsed_ms=elapsed_ms,
     )
+
+
+@app.post("/discover", response_model=DiscoveryResponse)
+async def discover(req: DiscoveryRequest):
+    start = time.monotonic()
+    
+    # LinkedIn Guest Search API
+    # https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Software%20Engineer
+    import urllib.parse
+    keywords_encoded = urllib.parse.quote(req.keywords)
+    search_url = f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords={keywords_encoded}"
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    }
+    
+    jobs = []
+    try:
+        async with httpx.AsyncClient(headers=headers, follow_redirects=True, verify=False) as client:
+            response = await client.get(search_url)
+            response.raise_for_status()
+            
+            # Use basic regex to find job cards in the HTML fragment LinkedIn returns
+            import re
+            job_ids = re.findall(r'urn:li:jobPosting:(\d+)', response.text)
+            titles = re.findall(r'<h3 class="base-search-card__title">\s*(.*?)\s*</h3>', response.text, re.DOTALL)
+            companies = re.findall(r'<h4 class="base-search-card__subtitle">\s*(.*?)\s*</h4>', response.text, re.DOTALL)
+            
+            # Zip them together and limit
+            for jid, title, company in zip(job_ids, titles, companies):
+                if len(jobs) >= req.limit:
+                    break
+                
+                # Basic HTML tag stripping for title and company
+                clean_title = re.sub('<[^<]+?>', '', title).strip()
+                clean_company = re.sub('<[^<]+?>', '', company).strip()
+                
+                jobs.append(JobBrief(
+                    id=jid,
+                    title=clean_title,
+                    company=clean_company,
+                    url=f"https://www.linkedin.com/jobs/view/{jid}"
+                ))
+                
+    except Exception as e:
+        print(f"DISCOVERY ERROR: {e}")
+        
+    return DiscoveryResponse(jobs=jobs, count=len(jobs))

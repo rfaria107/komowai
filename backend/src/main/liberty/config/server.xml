@@ -10,7 +10,9 @@
     <!-- Basic Security Registry to satisfy EE 11 requirements -->
     <quickStartSecurity userName="admin" userPassword="adminPassword"/>
 
-    <webApplication location="duke-knows-me.war" contextRoot="/dukesays">
+    <ltpa keysPassword="komowaiPassword"/>
+
+    <webApplication location="komowai.war" contextRoot="/api">
         <classloader commonLibraryRef="h2Library"/>
     </webApplication>
 
@@ -20,7 +22,7 @@
 
     <dataSource id="DefaultDataSource" jndiName="jdbc/DefaultDataSource">
         <jdbcDriver javax.sql.DataSource="org.h2.jdbcx.JdbcDataSource" libraryRef="h2Library"/>
-        <!-- Added MODE=LEGACY for H2 2.x compatibility with EclipseLink -->
-        <properties URL="jdbc:h2:mem:komowai;DB_CLOSE_DELAY=-1;MODE=LEGACY" user="sa" password=""/>
+        <!-- Use a relative path so it works locally and in Docker -->
+        <properties URL="jdbc:h2:file:${server.config.dir}/data/komowai;DB_CLOSE_DELAY=-1;MODE=LEGACY" user="sa" password=""/>
     </dataSource>
 </server>

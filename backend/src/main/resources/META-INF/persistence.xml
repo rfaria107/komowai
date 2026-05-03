@@ -5,10 +5,11 @@
              version="3.0">
     <persistence-unit name="komowai-pu" transaction-type="JTA">
         <jta-data-source>jdbc/DefaultDataSource</jta-data-source>
-        <class>dukes.UserProfile</class>
-        <class>dukes.Experience</class>
-        <class>dukes.Skill</class>
-        <class>dukes.Project</class>
+        <class>komowai.UserProfile</class>
+        <class>komowai.Experience</class>
+        <class>komowai.Skill</class>
+        <class>komowai.Project</class>
+        <class>komowai.JobMission</class>
         <properties>
             <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
         </properties>

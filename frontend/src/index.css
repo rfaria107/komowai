@@ -1,29 +1,26 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css');
 @import url('https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-mono/style.css');
 
 @theme {
-  --font-display: "Cormorant Garamond", serif;
+  --font-display: "Geist", sans-serif;
   --font-sans: "Geist", sans-serif;
   --font-mono: "Geist Mono", monospace;
   
-  --color-obsidian-950: #050505;
-  --color-obsidian-900: #0A0A0B;
-  --color-obsidian-800: #161618;
-  --color-obsidian-700: #232326;
-  --color-obsidian-600: #2E2E32;
+  --color-soft-mint: #E7F5E9;
+  --color-soft-lavender: #EBEBFF;
+  --color-soft-blue: #E3F2FD;
+  --color-soft-peach: #FFF0E6;
   
-  --color-acid-lime: #CFFF04;
-  --color-acid-lime-muted: rgba(207, 255, 4, 0.1);
-  
-  --color-cyber-cyan: #00F5FF;
+  --color-primary: #2D3436;
+  --color-accent: #6C5CE7;
   
   /* Theme utilities */
-  --color-text: #E1E1E3;
-  --color-text-muted: #A1A1AA;
-  --color-bg: #0A0A0B;
-  --color-accent: #CFFF04;
+  --color-text: #2D3436;
+  --color-text-muted: #636E72;
+  --color-bg: #FCFBFA;
+  --color-card: #FFFFFF;
+  --color-border: #E5E7EB;
 }
 
 @layer base {
@@ -42,8 +39,8 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: -0.02em;
+    font-weight: 600;
+    letter-spacing: -0.03em;
   }
 
   code, pre {
@@ -52,62 +49,46 @@
 
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--color-obsidian-950);
+    background: var(--color-bg);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-obsidian-700);
-    border-radius: 3px;
+    background: var(--color-border);
+    border-radius: 10px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-obsidian-600);
+    background: #D1D5DB;
   }
 }
 
 @layer components {
-  .dossier-card {
-    @apply bg-obsidian-800 border border-obsidian-600 rounded-none p-6 transition-all duration-300;
+  .cv-card {
+    @apply bg-card border border-border rounded-3xl p-8 shadow-sm transition-all duration-300;
   }
   
-  .dossier-input {
-    @apply bg-obsidian-950 border border-obsidian-700 rounded-none p-3 focus:border-acid-lime focus:ring-0 outline-none transition-all duration-200 text-sm;
+  .cv-input {
+    @apply bg-white border border-border rounded-xl p-4 focus:border-accent focus:ring-2 focus:ring-accent/10 outline-none transition-all duration-200 text-sm;
   }
   
-  .dossier-button-primary {
-    @apply bg-acid-lime text-obsidian-950 font-bold uppercase tracking-widest py-3 px-8 transition-all duration-200 hover:opacity-90 active:scale-95 text-xs;
+  .cv-button-primary {
+    @apply bg-primary text-white font-medium py-4 px-10 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 text-sm;
   }
   
-  .dossier-button-secondary {
-    @apply border border-obsidian-600 text-text hover:border-acid-lime hover:text-acid-lime py-2 px-6 transition-all duration-200 text-xs uppercase tracking-wider;
+  .cv-button-secondary {
+    @apply border border-border text-text-muted hover:bg-bg hover:text-text py-3 px-8 rounded-full transition-all duration-200 text-sm font-medium;
   }
 
-  .grain-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  .pastel-gradient-1 {
+    background: linear-gradient(135deg, var(--color-soft-mint) 0%, var(--color-soft-blue) 100%);
   }
 
-  .scanline {
-    width: 100%;
-    height: 100px;
-    z-index: 9998;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(207, 255, 4, 0.02) 50%, rgba(0, 0, 0, 0) 100%);
-    opacity: 0.1;
-    position: absolute;
-    bottom: 100%;
-    animation: scanline 8s linear infinite;
+  .pastel-gradient-2 {
+    background: linear-gradient(135deg, var(--color-soft-lavender) 0%, var(--color-soft-peach) 100%);
   }
 
-  @keyframes scanline {
-    0% { bottom: 100%; }
-    100% { bottom: -100px; }
+  .soft-shadow {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
   }
 }

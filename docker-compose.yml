@@ -1,0 +1,33 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=/api
+    depends_on:
+      - backend
+    # Optional: mount the config during dev to avoid rebuilds
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - komowai_data:/data
+    depends_on:
+      - html2md
+
+  html2md:
+    build:
+      context: ./html2md
+      dockerfile: Dockerfile
+
+volumes:
+  komowai_data:
