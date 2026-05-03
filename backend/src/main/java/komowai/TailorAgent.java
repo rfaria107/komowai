@@ -24,6 +24,9 @@ public interface TailorAgent {
         CONSTRAINTS:
         - ONLY use information provided in the User's Profile. Do NOT hallucinate experiences.
         - STRICT ADHERENCE: If the user provides a specific sequence of units, follow it exactly.
+        - LENGTH: 
+            - Limit 'reasoning' to a maximum of 100 words.
+            - Ensure 'markdownCode' is concise; focus on the top 2-3 most relevant points per section.
         - Output ONLY a raw JSON object with these exact keys:
             "reasoning": (detailed string explanation)
             "markdownCode": (valid Markdown code string)

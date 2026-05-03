@@ -23,13 +23,13 @@ const CVUploader: React.FC<Props> = ({ onExtract, loading }) => {
   };
 
   return (
-    <div className="cv-card border-none bg-white soft-shadow animate-in fade-in zoom-in duration-1000 p-1 lg:p-1">
-      <div className="rounded-[2.5rem] overflow-hidden border border-border">
+    <div className="cv-card border-none bg-white soft-shadow animate-in fade-in zoom-in duration-1000 p-1 lg:p-1 rounded-3xl">
+      <div className="rounded-3xl overflow-hidden border border-border">
         <div className="p-8 lg:p-12 space-y-8">
           <form onSubmit={handleSubmit} className="space-y-8">
             <div 
               onClick={() => fileInputRef.current?.click()}
-              className={`relative border-2 border-dashed rounded-[2rem] p-12 lg:p-20 text-center cursor-pointer transition-all duration-500 group overflow-hidden ${
+              className={`relative border-2 border-dashed rounded-2xl p-12 lg:p-20 text-center cursor-pointer transition-all duration-500 group overflow-hidden ${
                 file ? 'border-accent bg-soft-mint/30' : 'border-border hover:border-accent hover:bg-soft-blue/10'
               }`}
             >
@@ -47,7 +47,7 @@ const CVUploader: React.FC<Props> = ({ onExtract, loading }) => {
               />
               
               <div className="relative flex flex-col items-center gap-6">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${file ? 'pastel-gradient-1 shadow-md' : 'bg-bg group-hover:bg-white'}`}>
+                <div className={`w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-500 ${file ? 'pastel-gradient-1 shadow-md' : 'bg-bg group-hover:bg-white'}`}>
                   <svg className={`w-8 h-8 transition-colors ${file ? 'text-primary' : 'text-text-muted group-hover:text-accent'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                   </svg>

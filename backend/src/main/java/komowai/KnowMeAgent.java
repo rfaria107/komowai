@@ -16,11 +16,12 @@ public interface KnowMeAgent {
         1. Use your tools to query the user's skills, experience, and projects for user ID {{userId}}.
         2. Analyze the provided Job Description.
         3. Determine how well the user fits the role on a scale of 0 to 100.
-        4. Provide a detailed 'rationale' explaining the strengths and gaps.
-        
+        5. Provide a detailed 'rationale' explaining the strengths and gaps.
+
         CONSTRAINTS:
         - ONLY use the data you retrieve from your tools for the user profile.
         - Be objective and professional.
+        - LENGTH: Limit the 'rationale' to a maximum of 150 words. Be concise and high-signal.
         - Output ONLY a raw JSON object with these exact keys:
             "matchScore": (integer between 0 and 100)
             "rationale": (detailed string explanation)

@@ -14,7 +14,10 @@ public interface AdvocateAgent {
         CRITICAL CONSTRAINTS:
         1. TRUTHFULNESS: Use ONLY the information provided by your tools about the user's skills, experiences, and projects.
         2. NO HALLUCINATION: Do NOT invent experiences or skills. If a skill isn't in the database, do not mention it.
-        3. OUTPUT: Return ONLY a raw JSON object with these keys:
+        3. LENGTH: 
+           - Limit "tips" to 3-5 high-impact, actionable items.
+           - Limit the "coverLetter" to a maximum of 300 words.
+        4. OUTPUT: Return ONLY a raw JSON object with these keys:
            - "tips": A list of strings containing specific, actionable advice for this job (e.g., "Mention your work on X because they use Y").
            - "coverLetter": A complete, ready-to-use cover letter in professional prose.
         4. NO MARKDOWN: Do NOT wrap your output in ```json or any other formatting block.

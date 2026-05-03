@@ -175,44 +175,65 @@ async def discover(req: DiscoveryRequest):
     start = time.monotonic()
     
     # LinkedIn Guest Search API
-    # https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Software%20Engineer
     import urllib.parse
     keywords_encoded = urllib.parse.quote(req.keywords)
     search_url = f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords={keywords_encoded}"
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
     }
     
     jobs = []
+    html_content = ""
+    source = "live"
+
     try:
-        async with httpx.AsyncClient(headers=headers, follow_redirects=True, verify=False) as client:
+        async with httpx.AsyncClient(headers=headers, follow_redirects=True, verify=False, timeout=15) as client:
             response = await client.get(search_url)
-            response.raise_for_status()
-            
-            # Use basic regex to find job cards in the HTML fragment LinkedIn returns
-            import re
-            job_ids = re.findall(r'urn:li:jobPosting:(\d+)', response.text)
-            titles = re.findall(r'<h3 class="base-search-card__title">\s*(.*?)\s*</h3>', response.text, re.DOTALL)
-            companies = re.findall(r'<h4 class="base-search-card__subtitle">\s*(.*?)\s*</h4>', response.text, re.DOTALL)
-            
-            # Zip them together and limit
-            for jid, title, company in zip(job_ids, titles, companies):
-                if len(jobs) >= req.limit:
-                    break
-                
-                # Basic HTML tag stripping for title and company
-                clean_title = re.sub('<[^<]+?>', '', title).strip()
-                clean_company = re.sub('<[^<]+?>', '', company).strip()
-                
-                jobs.append(JobBrief(
-                    id=jid,
-                    title=clean_title,
-                    company=clean_company,
-                    url=f"https://www.linkedin.com/jobs/view/{jid}"
-                ))
-                
+            if response.status_code == 200 and "urn:li:jobPosting" in response.text:
+                html_content = response.text
+            else:
+                print(f"DISCOVERY: Live search returned status {response.status_code} or no jobs found. Falling back to test data.")
     except Exception as e:
-        print(f"DISCOVERY ERROR: {e}")
+        print(f"DISCOVERY: Live search failed ({e}). Falling back to test data.")
+
+    # FALLBACK: Use static test file if live search fails or for demo consistency
+    if not html_content:
+        test_file = "../linkedin_test.html" # Path relative to html2md/
+        if os.path.exists(test_file):
+            with open(test_file, "r") as f:
+                html_content = f.read()
+            source = "static_fallback"
+            print("DISCOVERY: Using static linkedin_test.html fallback.")
+        else:
+            # Try root if relative fails
+            test_file = "linkedin_test.html"
+            if os.path.exists(test_file):
+                with open(test_file, "r") as f:
+                    html_content = f.read()
+                source = "static_fallback"
+                print("DISCOVERY: Using static linkedin_test.html (local).")
+
+    if html_content:
+        import re
+        job_ids = re.findall(r'urn:li:jobPosting:(\d+)', html_content)
+        titles = re.findall(r'<h3 class="base-search-card__title">\s*(.*?)\s*</h3>', html_content, re.DOTALL)
+        companies = re.findall(r'<h4 class="base-search-card__subtitle">\s*(.*?)\s*</h4>', html_content, re.DOTALL)
         
+        for jid, title, company in zip(job_ids, titles, companies):
+            if len(jobs) >= req.limit:
+                break
+            
+            clean_title = re.sub('<[^<]+?>', '', title).strip()
+            clean_company = re.sub('<[^<]+?>', '', company).strip()
+            
+            jobs.append(JobBrief(
+                id=jid,
+                title=clean_title,
+                company=clean_company,
+                url=f"https://www.linkedin.com/jobs/view/{jid}"
+            ))
+
+    print(f"DISCOVERY: Found {len(jobs)} jobs via {source}")
     return DiscoveryResponse(jobs=jobs, count=len(jobs))

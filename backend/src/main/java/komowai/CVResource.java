@@ -39,12 +39,12 @@ public class CVResource {
     @POST
     @Path("extract/file")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response extractFile(java.util.List<EntityPart> parts) throws IOException {
+    public Response extractFile(@FormParam("file") EntityPart filePart) throws IOException {
+        if (filePart == null) {
+            throw new BadRequestException("File is required");
+        }
         
-        EntityPart filePart = parts.stream()
-                .filter(p -> "file".equals(p.getName()))
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException("File is required"));
+        System.out.println("CV_RESOURCE: Received file part: " + filePart.getFileName().orElse("none"));
 
         InputStream fileStream = filePart.getContent();
         String fileName = filePart.getFileName().orElse("dossier.pdf");

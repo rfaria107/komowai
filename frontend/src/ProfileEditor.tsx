@@ -4,13 +4,14 @@ import type { UserProfile, Skill, Experience, Project } from './types';
 interface Props {
   onSave: (profile: UserProfile) => void;
   initialProfile?: UserProfile;
+  onChange?: (isEmpty: boolean) => void;
 }
 
 export interface ProfileEditorHandle {
   save: () => void;
 }
 
-const ProfileEditor = memo(forwardRef<ProfileEditorHandle, Props>(({ onSave, initialProfile }, ref) => {
+const ProfileEditor = memo(forwardRef<ProfileEditorHandle, Props>(({ onSave, initialProfile, onChange }, ref) => {
   const [profile, setProfile] = useState<UserProfile>(initialProfile || {
     name: '',
     email: '',
@@ -18,6 +19,20 @@ const ProfileEditor = memo(forwardRef<ProfileEditorHandle, Props>(({ onSave, ini
     experiences: [],
     projects: []
   });
+
+  const checkEmpty = useCallback((p: UserProfile) => {
+    return !p.name.trim() && 
+           !p.email.trim() && 
+           p.skills.length === 0 && 
+           p.experiences.length === 0 && 
+           p.projects.length === 0;
+  }, []);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(checkEmpty(profile));
+    }
+  }, [profile, onChange, checkEmpty]);
 
   useImperativeHandle(ref, () => ({
     save: () => {

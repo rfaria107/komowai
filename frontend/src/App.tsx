@@ -22,6 +22,7 @@ function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedMission, setSelectedMission] = useState<JobMission | null>(null);
   const [analyzingIds, setAnalyzingIds] = useState<Set<number>>(new Set());
+  const [isEditorEmpty, setIsEditorEmpty] = useState(true);
 
   const fetchMissions = useCallback(async () => {
     try {
@@ -203,9 +204,7 @@ function App() {
       className="flex items-center gap-3 cursor-pointer" 
       onClick={() => { setActiveView('main'); setCurrentStep(1); }}
     >
-      <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm flex items-center justify-center bg-white border border-border">
-        <img src="/komodo2.svg" alt="Komowai" className="w-10 h-10 object-contain" />
-      </div>
+      <img src="/komodo2.svg" alt="komowai" className="w-12 h-12 object-contain" />
       <span className="font-display text-2xl font-bold tracking-tight">KOMOWAI</span>
     </div>
   ), []);
@@ -221,7 +220,7 @@ function App() {
             {STEPS.map((s) => (
               <div 
                 key={s.id} 
-                className={`flex items-center gap-2 cursor-pointer transition-all ${currentStep === s.id ? 'text-primary' : 'text-text-muted opacity-50'}`}
+                className={`flex items-center gap-2 transition-all ${currentStep === s.id ? 'text-primary' : 'text-text-muted opacity-50'} ${profile || s.id === 1 ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                 onClick={() => {
                   if (profile || s.id === 1) setCurrentStep(s.id);
                 }}
@@ -258,7 +257,14 @@ function App() {
               <div className="w-full shrink-0 px-6 lg:px-12 box-border">
                 <div className="max-w-5xl mx-auto space-y-16">
                   {!profile && !isReviewing ? (
-                    <section className="animate-in fade-in slide-in-from-top-4 duration-700">
+                    <section className="animate-in fade-in slide-in-from-top-4 duration-700 space-y-12">
+                       <div className="max-w-3xl mx-auto space-y-4 text-center">
+                          <h2 className="text-4xl font-display italic tracking-tight">Establish Identity</h2>
+                          <p className="text-text-muted font-light max-w-xl mx-auto">
+                            Upload your existing CV to initialize your professional profile. 
+                            Our agents will extract your skills and impact to ground future analysis.
+                          </p>
+                       </div>
                        <div className="max-w-3xl mx-auto"><CVUploader onExtract={handleCVExtract} loading={extracting} /></div>
                        <div className="flex items-center gap-4 mt-12">
                           <div className="h-px bg-border flex-1" />
@@ -271,12 +277,9 @@ function App() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                       <div className="space-y-2">
                         <div className="flex items-center gap-3">
-                          <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${profile || isReviewing ? 'bg-soft-mint text-primary' : 'bg-soft-lavender text-accent'}`}>
-                            {profile || isReviewing ? '✓' : '1'}
-                          </span>
                           <h2 className="text-3xl font-display">CV Composition</h2>
                         </div>
-                        <p className="text-text-muted text-sm font-light ml-11">
+                        <p className="text-text-muted text-sm font-light ml-0">
                           {isReviewing ? 'Verify and refine your extracted attributes.' : 'Fine-tune your professional profile to ground the analysis.'}
                         </p>
                       </div>
@@ -287,7 +290,12 @@ function App() {
                         </div>
                       ) : null}
                     </div>
-                    <ProfileEditor ref={editorRef} onSave={handleSaveProfile} initialProfile={isReviewing ? (transientProfile || undefined) : (profile || undefined)} />
+                    <ProfileEditor 
+                      ref={editorRef} 
+                      onSave={handleSaveProfile} 
+                      initialProfile={isReviewing ? (transientProfile || undefined) : (profile || undefined)} 
+                      onChange={setIsEditorEmpty}
+                    />
                   </section>
                 </div>
               </div>
@@ -415,7 +423,19 @@ function App() {
                                   <div className={`cv-card h-full border-l-4 ${isAnalyzed ? (m.score >= 50 ? 'border-l-soft-mint' : 'border-l-red-400') : 'border-l-border'} hover:-translate-y-1 transition-all flex flex-col justify-between`}>
                                      <div>
                                        <div className="flex justify-between items-start mb-4">
-                                          <div className="text-[9px] font-mono text-text-muted uppercase tracking-widest">ID_{m.id}</div>
+                                          <div className="flex flex-col gap-1">
+                                            <div className="text-[9px] font-mono text-text-muted uppercase tracking-widest">ID_{m.id}</div>
+                                            {m.url && !m.url.startsWith('manual-input-') && (
+                                              <a 
+                                                href={m.url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                className="text-[8px] font-mono text-accent hover:underline uppercase tracking-tighter flex items-center gap-1"
+                                              >
+                                                View Source ↗
+                                              </a>
+                                            )}
+                                          </div>
                                           {isAnalyzed ? (
                                             <div className={`text-xl font-display italic ${m.score >= 50 ? 'text-primary' : 'text-red-500'}`}>{m.score}%</div>
                                           ) : (
@@ -465,10 +485,14 @@ function App() {
           </main>
 
           {/* PERSISTENT ACTION BAR */}
-          <div className="fixed bottom-0 left-0 right-0 p-8 z-50 bg-gradient-to-t from-bg via-bg to-transparent pointer-events-none">
+          <div className="fixed bottom-0 left-0 right-0 p-6 z-50 bg-gradient-to-t from-bg/80 to-transparent pointer-events-none">
             <div className="max-w-5xl mx-auto flex justify-center gap-4">
               {currentStep === 1 ? (
-                <button onClick={() => editorRef.current?.save()} className="cv-button-primary w-full max-w-xs shadow-2xl pointer-events-auto flex items-center justify-center gap-3 backdrop-blur-sm">
+                <button 
+                  onClick={() => editorRef.current?.save()} 
+                  disabled={isEditorEmpty}
+                  className="cv-button-primary w-full max-w-xs shadow-2xl pointer-events-auto flex items-center justify-center gap-3 backdrop-blur-sm disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
+                >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
                   {profile ? 'Verify & Continue' : 'Initialize Identity'}
                 </button>
@@ -479,7 +503,7 @@ function App() {
           </div>
         </>
       )}
-      <footer className="border-t border-border bg-white py-12 px-6 lg:px-12 mt-auto">
+      <footer className="border-t border-border bg-white pt-12 pb-32 px-6 lg:px-12 mt-auto">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-2"><span className="font-display font-bold">KOMOWAI</span><span className="text-text-muted text-[10px] font-mono">v1.2.2</span></div>
           <div className="text-[10px] font-mono text-text-muted uppercase tracking-[0.2em] text-center">ShiftAPPens Hackathon 2026 // Distributed Identity Protocol</div>
@@ -495,11 +519,11 @@ function AboutView() {
     <main className="pt-32 pb-24 px-6 lg:px-12 max-w-3xl mx-auto space-y-12 animate-in fade-in duration-700">
       <header className="space-y-6">
         <div className="w-20 h-20 rounded-2xl bg-white shadow-sm border border-border flex items-center justify-center"><img src="/komodo2.svg" alt="Logo" className="w-16 h-16 object-contain" /></div>
-        <h1 className="text-6xl font-display">About Komowai</h1>
-        <p className="text-xl text-text-muted font-light leading-relaxed">The "Know-Me" Engine (Komowai) is an agentic decision-support system designed to bridge the gap between vast public job knowledge and your unique professional context.</p>
+        <h1 className="text-6xl font-display">About komowai</h1>
+        <p className="text-xl text-text-muted font-light leading-relaxed">komowai is a Jakarta EE 11 job hunting assistant and app. It scans job boards to find the best matches for your profile and transforms your CV in a structured profile to dynamically compile your skills and related projects you've worked on to every application. By leveraging CDI-integrated AI and JSON-B, it ensures your career data is structured, portable, and the recommendations are tailored to your profile and experience..</p>
       </header>
       <section className="space-y-8">
-        <div className="space-y-4"><h2 className="text-2xl font-display font-bold">The Core Mission</h2><p className="text-text-muted leading-relaxed">In an era of generic AI, Komowai focuses on <strong>Deep Knowledge</strong>. It doesn't just scan keywords; it understands your professional trajectory, your specific technical impact, and your career aspirations.</p></div>
+        <div className="space-y-4"><h2 className="text-2xl font-display font-bold">The Core Mission</h2><p className="text-text-muted leading-relaxed">In an era of generic AI, Komowai focuses on <strong>Deep Knowledge</strong>. It understands your professional trajectory, your specific technical impact, and your career aspirations.</p></div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="cv-card pastel-gradient-1"><h3 className="font-bold mb-2">Neural Extraction</h3><p className="text-xs text-text-muted">Advanced LLM agents parse your raw CV into structured, queryable professional entities.</p></div>
           <div className="cv-card pastel-gradient-2"><h3 className="font-bold mb-2">Agentic Grounding</h3><p className="text-xs text-text-muted">The scoring engine uses real-time profile data to calculate a precise fit for any given mission.</p></div>
