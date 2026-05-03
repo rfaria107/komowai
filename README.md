@@ -1,65 +1,64 @@
-# KOMOWAI: The Deep Knowledge Career Agent - Day 1
+# KOMOWAI: The Agentic Identity Protocol - V1.2.2
 
-**Komowai** is an enterprise-grade decision-support system built for the **ShiftAPPens Hackathon 2026**. It leverages the **Jakarta EE 11** platform and agentic AI to provide personalized career guidance, moving beyond "Average Answers" to deliver insights grounded in your unique professional context.
+**Komowai** is a production-grade career advocacy engine built for the **ShiftAPPens Hackathon 2026**. It leverages the **Jakarta EE 11** platform and agentic AI to provide deep professional grounding, transforming static CVs into dynamic, queryable career assets.
 
-## Key Features
+## Key Capabilities
 
-- **Automated CV Extraction**: Send your raw CV text, and our `ExtractorAgent` will autonomously structure it into atomic units (Skills, Projects, Experience).
-- **Deep Knowledge Agent**: A "Grounding" agent that uses specialized tools to query your professional database on-demand.
-- **Match Fit Scoring**: Paste a job link or description and get a 0-100 fit score based on objective analysis of your real experience.
-- **Agent Rationale**: Transparent explanations of why the agent assigned a specific score and where your strengths/gaps lie.
+- **Neural Identity Extraction**: Autonomously parses raw CVs (PDF, DOCX, TXT) into structured **Jakarta Data** entities, capturing the atomic impact of your career.
+- **Vanguard Discovery**: An autonomous scouting agent that scans LinkedIn Guest APIs to identify high-fit opportunities while you sleep.
+- **Agentic Grounding**: A multi-agent system (Scoring, Advocacy, and Tailoring) that uses specialized tools to query your professional database on-demand, ensuring zero-hallucination results.
+- **Strategic Advocacy**: Generates tailored cover letters and tactical advice grounded in your specific technical history.
 
 ## Technology Stack
 
-- **Backend**: Jakarta EE 11 (running on Open Liberty Beta).
-- **Frontend**: React (Vite + TypeScript + Tailwind CSS).
-- **Data Layer**: **Jakarta Data 1.0** (declarative repositories) & Jakarta Persistence 3.2.
-- **AI Orchestration**: **LangChain4j-CDI** integration.
-- **Runtime**: Open Liberty 26.0.0.5-beta (Jakarta EE 11 certified).
+- **Runtime**: **Open Liberty 26.0.0.x** (Jakarta EE 11 Certified).
+- **Backend Architecture**: 
+  - **Jakarta Data 1.0**: Declarative repositories for high-signal data access.
+  - **LangChain4j-CDI**: Seamless AI integration via standard CDI lifecycle and `@Tool` annotations.
+  - **Jakarta Persistence 3.2**: Managing complex, cascaded professional identity graphs.
+- **Microservices**: Python-based `html2md` using **Microsoft MarkItDown** for robust file and URL conversion.
+- **Frontend**: **React 19** (Vite + TypeScript + Tailwind CSS) with a refined, high-roundness aesthetic.
+
+## System Architecture
+
+The system operates on an **Embedded MCP (Model Context Protocol)** philosophy. Our AI agents are not just "chatting"—they have "hands" (Tools) that reach directly into the Jakarta repositories to fetch the evidence needed for their recommendations.
 
 ## Getting Started
 
 ### Prerequisites
 - **Java 25** (OpenJDK)
 - **Maven 3.9.x**
-- **Node.js** (for the frontend)
+- **Python 3.12+** (for the conversion service)
+- **Node.js 22+**
 
-### 1. Run the Backend (Jakarta EE)
+### 1. Initialize the Conversion Microservice
+```bash
+cd html2md
+python -m venv .venv
+source .venv/bin/activate # or .venv\Scripts\activate on Windows
+pip install -r requirements.txt
+python main.py
+```
 
-The backend provides the REST API and the Agentic Engine.
-
+### 2. Launch the Engine (Jakarta EE)
 ```bash
 cd backend
 mvn clean liberty:run
 ```
-*Note: The first run will download the Open Liberty runtime and H2 database driver.*
 
-### 2. Run the Frontend (React)
-
-The frontend provides the interactive dashboard.
-
+### 3. Deploy the Interface (React)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-## Jakarta EE 11 Highlights
+## The "Vanguard" Workflow
 
-This project serves as a showcase for modern Jakarta EE 11 capabilities:
-- **Jakarta Data 1.0**: Using `@Repository` interfaces for type-safe, boilerplate-free data access.
-- **Jakarta Persistence 3.2**: Managing modular professional identity units.
-- **CDI 4.1**: Powering pluggable AI services and tool injection.
-- **Jakarta Concurrency 3.0**: Handling async AI extraction in the background.
-
-## Mock Mode (No API Key Required)
-
-The project includes **Mock Agents** enabled by default via CDI `@Alternative`. This allows you to test the full data pipeline and UI flow without an OpenAI API key.
-
-To use real AI:
-1. Provide an `OPENAI_API_KEY` environment variable.
-2. Remove or comment out the `@Priority(1)` annotation in `MockExtractorAgent.java` and `MockKnowMeAgent.java`.
+1. **Establish Identity**: Upload your CV. The `ExtractorAgent` maps your trajectory.
+2. **Autonomous Scout**: Toggle the Vanguard Agent. It discovers missions and calculates "Fit Coefficients" in the background.
+3. **Strategic Artifacts**: Review tailored briefs and advocacy documents generated specifically for your profile.
 
 ---
-*Built for ShiftAPPens Hackathon 2026.*
+*Architected for the ShiftAPPens Hackathon 2026.*
+
